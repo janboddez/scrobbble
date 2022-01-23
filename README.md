@@ -14,7 +14,7 @@ Other such filters are `scrobbble_artist`, and `scrobbble_album`.
 ```
 add_filter( 'scrobbble_skip_track', function( $skip, $data ) {
   if ( $data['artist'] === 'Journey' ) {
-    return false; // Prevent any such track from being imported.
+    return true; // Prevent any such track from being imported.
   }
 
   return $skip;
