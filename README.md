@@ -6,7 +6,7 @@ This plugin implements a Last.fm's v1.2 scrobbling API, allowing music players l
 It registers a new "Listen" Custom Post Type, and a number of filter (and action) hooks. Here's some examples of further customizations:
 ```
 add_filter( 'scrobbble_title', function( $title ) {
-  return ucWords( $title );
+  return ucwords( $title );
 } );
 ```
 Other such filters are `scrobbble_artist`, and `scrobbble_album`.
