@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<ruleset name="Custom WordPress Standards">
+	<rule ref="WordPress" />
+</ruleset>
