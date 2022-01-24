@@ -1,7 +1,7 @@
 # Scrobbble
 Scrobble listening data to WordPress, directly.
 
-This plugin implements a Last.fm's v1.2 scrobbling API, allowing music players like MPD (on Linux) or foobar2000 (on Windows) to submit listening data straight to your WordPress site.
+This plugin implements Last.fm's v1.2 scrobbling API, allowing media players to submit listening data straight to your WordPress site.
 
 It registers a new "Listen" Custom Post Type, and a number of filter (and action) hooks. Here's some examples of further customizations:
 ```
