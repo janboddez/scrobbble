@@ -38,7 +38,7 @@ add_action( 'scrobbble_save_track', function( $post_id, $data ) {
 Remember when Dan Cederholm created Dribbble and it was super cool? 'Cause we do.
 
 ## I use MPD, How Do I Get This to Work?
-Install mpdscribble, and in `/etc/mpdscribbble.conf`, under `#[libre.fm]`, add your WordPress username, your password of choice, and your site's Scrobbble (e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble`) endpoint.
+Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/etc/mpdscribbble.conf` (or `~/.mpdscribble/mpdscribble.conf`), under `#[libre.fm]`, add your WordPress username, your password of choice, and your site's Scrobbble (e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble`) endpoint.
 
 ## I use foobar2000, How Do I Get This to Work?
 (This is extremely niche, but) you'll probably need to install [this 10-year-old plugin](https://www.foobar2000.org/components/view/foo_audioscrobbler), but not before you've used a hex editor to modify its baked-in scrobbling endpoint. [This Reddit post](https://web.archive.org/web/20180522184216/https://www.reddit.com/r/foobar2000/comments/3zaiy6/guide_to_librefm_scrobbling_lastfm_backup_to/) explains how to do that.
