@@ -3,7 +3,12 @@ Scrobble listening data to WordPress, directly.
 
 This plugin implements Last.fm's v1.2 scrobbling API, allowing media players to submit listening data straight to your WordPress site.
 
-It registers a new "Listen" Custom Post Type, and a number of filter (and action) hooks. Here's some examples of further customizations:
+It registers a new "Listen" Custom Post Type, and a number of filter (and action) hooks.
+
+## Hooks
+Here's some examples of further customizations.
+
+### Filter Title, Artist, and Album Information
 ```
 add_filter( 'scrobbble_title', function( $title ) {
   return ucwords( $title );
@@ -11,6 +16,7 @@ add_filter( 'scrobbble_title', function( $title ) {
 ```
 Other such filters are `scrobbble_artist`, and `scrobbble_album`.
 
+### Skip Specific Scrobbles
 ```
 add_filter( 'scrobbble_skip_track', function( $skip, $data ) {
   if ( $data['artist'] === 'Journey' ) {
@@ -20,12 +26,16 @@ add_filter( 'scrobbble_skip_track', function( $skip, $data ) {
   return $skip;
 }, 10, 2 );
 ```
+
+### Modify "Listens"
 ```
 add_filter( 'scrobbble_content', function( $content, $data ) {
   // This is where you could completely alter Listens' markup.
   return $content;
 }, 10, 2 );
 ```
+
+### Run Additional Functions After a Listen Is Created
 ```
 add_action( 'scrobbble_save_track', function( $post_id, $data ) {
   // Runs after a Listen with post ID `$post_id` was first inserted in the
@@ -42,6 +52,8 @@ Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/et
 
 ## I use foobar2000, How Do I Get This to Work?
 (This is extremely niche, but) you'll probably need to install [this 10-year-old plugin](https://www.foobar2000.org/components/view/foo_audioscrobbler), but not before you've used a hex editor to modify its baked-in scrobbling endpoint. [This Reddit post](https://web.archive.org/web/20180522184216/https://www.reddit.com/r/foobar2000/comments/3zaiy6/guide_to_librefm_scrobbling_lastfm_backup_to/) explains how to do that.
+
+(My endpoint, turns out, was too long, and I set up a shorter URL which redirects to it to work around that limitation.)
 
 Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 
