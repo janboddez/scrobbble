@@ -93,7 +93,7 @@ class Scrobbble_API {
 				'user_id'    => $user->ID,
 				'session_id' => $session_id,
 				'client'     => $client,
-				'expires'    => time() + DAY_IN_SECONDS,
+				'expires'    => time() + MONTH_IN_SECONDS,
 			)
 		);
 
@@ -146,6 +146,8 @@ class Scrobbble_API {
 			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
+
+		error_log( '[Scrobbble] Got request: ' . wp_json_encode( $request->get_params() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
 		if ( empty( $artists ) || empty( $titles ) || empty( $times ) ) {
 			error_log( '[Scrobbble] Incomplete scrobble.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -221,10 +223,10 @@ class Scrobbble_API {
 			// To do: deprecate in favor of core hooks, e.g.,
 			// `save_post_iwcpt_listen`?
 			do_action( 'scrobbble_save_track', $post_id, $data );
-
-			header( 'Content-Type: text/plain; charset=UTF-8' );
-			die( "OK\n" );
 		}
+
+		header( 'Content-Type: text/plain; charset=UTF-8' );
+		die( "OK\n" );
 	}
 
 	/**
