@@ -27,9 +27,9 @@ class Scrobbble_API {
 
 		register_rest_route(
 			'scrobbble/v1',
-			'/nowplaying', // We don't actually do anything with this, but clients might expect it.
+			'/nowplaying',
 			array(
-				'methods'             => array( 'POST' ),
+				'methods'             => array( 'GET', 'POST' ),
 				'callback'            => 'Scrobbble\\Scrobbble_API::now',
 				'permission_callback' => '__return_true',
 			)
@@ -77,7 +77,7 @@ class Scrobbble_API {
 		$client     = $request->get_param( 'c' ) ?: '';
 		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
-		if ( ! self::check_standard_auth( $auth_token, $timestamp ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
+		if ( ! static::check_standard_auth( $auth_token, $timestamp ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
 			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
@@ -119,9 +119,62 @@ class Scrobbble_API {
 	 * @param WP_REST_Request $request WP Rest request.
 	 */
 	public static function now( $request ) {
-		// We could eventually use transients to store title, artist and album.
-		header( 'Content-Type: text/plain; charset=UTF-8' );
-		die( "OK\n" );
+		if ( 'POST' === $request->get_method() ) {
+			// phpcs:disable WordPress.PHP.DisallowShortTernary.Found
+			$session_id = $request->get_param( 's' ) ?: '';
+			$title      = $request->get_param( 't' ) ?: '';
+			$artist     = $request->get_param( 'a' ) ?: '';
+			$album      = $request->get_param( 'b' ) ?: '';
+			$mbid       = $request->get_param( 'm' ) ?: '';
+			$length     = intval( $request->get_param( 'l' ) ?: 300 );
+			// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
+
+			$user_id = static::user_id_from_session_id( $session_id ); // Here, too, we could (should?) do this in the permission callback.
+
+			if ( empty( $user_id ) ) {
+				error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				header( 'Content-Type: text/plain; charset=UTF-8' );
+				die( "FAILED\n" );
+			}
+
+			error_log( '[Scrobbble] Got request: ' . wp_json_encode( $request->get_params() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+			if ( empty( $artist ) || empty( $title ) ) {
+				error_log( '[Scrobbble] Incomplete scrobble.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				header( 'Content-Type: text/plain; charset=UTF-8' );
+				die( "FAILED\n" );
+			}
+
+			if ( ! is_string( $artist ) || ! is_string( $title ) ) {
+				error_log( '[Scrobbble] Incorrectly formatted array data.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				header( 'Content-Type: text/plain; charset=UTF-8' );
+				die( "FAILED\n" );
+			}
+
+			set_transient(
+				'scrobbble_nowplaying',
+				array(
+					'title'  => apply_filters( 'scrobbble_title', sanitize_text_field( $title ) ),
+					'artist' => apply_filters( 'scrobbble_artist', sanitize_text_field( $artist ) ),
+					'album'  => apply_filters( 'scrobbble_album', sanitize_text_field( $album ) ),
+					'mbid'   => ! empty( $mbid ) ? static::sanitize_mbid( $mbid ) : '',
+				),
+				$length < 5400 ? $length : 600
+			);
+
+			header( 'Content-Type: text/plain; charset=UTF-8' );
+			die( "OK\n" );
+		} else {
+			// GET requests. This bit is always publicly accessible.
+			$now_playing = get_transient( 'scrobbble_nowplaying' );
+
+			if ( ! is_array( $now_playing ) ) {
+				return new \WP_REST_Response( array(), 404 );
+			}
+
+			// Return previously stored song information.
+			return rest_ensure_response( array_filter( $now_playing ) );
+		}
 	}
 
 	/**
@@ -139,7 +192,7 @@ class Scrobbble_API {
 		$times      = $request->get_param( 'i' ) ?: array();
 		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
-		$user_id = self::user_id_from_session_id( $session_id ); // Here, too, we could (should?) do this in the permission callback.
+		$user_id = static::user_id_from_session_id( $session_id ); // Here, too, we could (should?) do this in the permission callback.
 
 		if ( empty( $user_id ) ) {
 			error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -168,7 +221,7 @@ class Scrobbble_API {
 			$title  = apply_filters( 'scrobbble_title', sanitize_text_field( $titles[ $i ] ) ?: '' );
 			$artist = apply_filters( 'scrobbble_artist', sanitize_text_field( $artists[ $i ] ) ?: '' );
 			$album  = apply_filters( 'scrobbble_album', sanitize_text_field( $albums[ $i ] ) ?: '' );
-			$mbid   = $mbids[ $i ] ? self::sanitize_mbid( $mbids[ $i ] ) : '';
+			$mbid   = $mbids[ $i ] ? static::sanitize_mbid( $mbids[ $i ] ) : '';
 			$time   = $times[ $i ] ?: time();
 			// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
