@@ -248,7 +248,7 @@ class Scrobbble_API {
 			$content = "Listening to <span class=\"p-listen-of h-cite\"><cite class=\"p-name\">$title</cite> by <span class=\"p-author h-card\"><span class=\"p-name\">$artist</span></span></span>";
 
 			if ( ! empty( $album ) ) {
-				$content .= "<span class=\"sr-only\"> ($album)</span>";
+				$content .= "<span class=\"screen-reader-text\"> ($album)</span>";
 			}
 
 			$content .= '.';
