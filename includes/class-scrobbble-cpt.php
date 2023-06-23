@@ -134,7 +134,7 @@ class Scrobbble_CPT {
 					'slug'       => __( 'listens', 'scrobbble' ),
 					'with_front' => false,
 				),
-				'supports'          => array( 'author', 'title', 'editor', 'thumbnail', 'custom-fields', 'comments' ),
+				'supports'          => array( 'author', 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'trackbacks', 'comments' ),
 				'menu_icon'         => 'dashicons-format-audio',
 			)
 		);
