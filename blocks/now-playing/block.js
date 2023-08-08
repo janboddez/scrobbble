@@ -44,7 +44,7 @@
 						),
 					el( 'span' , {},
 						interpolate( __( 'Title – Artist <span>(Album)</span>', 'scrobbble' ), {
-							span: el( 'span', { className: 'scree-reader-text' } ),
+							span: el( 'span', { className: 'screen-reader-text' } ),
 						} )
 					)
 				)
