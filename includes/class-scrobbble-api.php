@@ -51,7 +51,7 @@ class Scrobbble_API {
 	 *
 	 * Creates a new session, then echoes the session ID and scrobble URLs.
 	 *
-	 * @param WP_REST_Request $request WP Rest request.
+	 * @param \WP_REST_Request $request Rest request.
 	 */
 	public static function handshake( $request ) {
 		$username = $request->get_param( 'u' ) ?: ''; // phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
@@ -116,7 +116,8 @@ class Scrobbble_API {
 	/**
 	 * "Now Playing" callback. Not actually implemented.
 	 *
-	 * @param WP_REST_Request $request WP Rest request.
+	 * @param  \WP_REST_Request $request Rest request.
+	 * @return array                     Response.
 	 */
 	public static function now( $request ) {
 		if ( 'POST' === $request->get_method() ) {
@@ -169,11 +170,11 @@ class Scrobbble_API {
 			$now_playing = get_transient( 'scrobbble_nowplaying' );
 
 			if ( ! is_array( $now_playing ) ) {
-				return new \WP_REST_Response( array(), 404 );
+				return array();
 			}
 
 			// Return previously stored song information.
-			return rest_ensure_response( array_filter( $now_playing ) );
+			return array_filter( $now_playing );
 		}
 	}
 
@@ -304,7 +305,7 @@ class Scrobbble_API {
 	 * @return string|null
 	 */
 	protected static function sanitize_mbid( $mbid ) {
-		$mbid = strtolower( $mbid );
+		$mbid = strtolower( trim( $mbid ) );
 
 		if ( preg_match( '/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/D', $mbid ) ) {
 			return $mbid;

@@ -12,6 +12,11 @@ namespace Scrobbble;
  */
 class Scrobbble {
 	/**
+	 * Plugin version.
+	 */
+	const PLUGIN_VERSION = '0.1.1';
+
+	/**
 	 * Single plugin instance.
 	 *
 	 * @var Scrobbble $instance Single plugin instance.
@@ -35,6 +40,7 @@ class Scrobbble {
 	public function register() {
 		register_activation_hook( dirname( dirname( __FILE__ ) ) . '/scrobbble.php', array( $this, 'activate' ) );
 
+		add_action( 'init', array( 'Scrobbble\\Blocks', 'register_blocks' ) );
 		add_action( 'init', array( 'Scrobbble\\Scrobbble_CPT', 'register' ) );
 		add_action( 'rest_api_init', array( 'Scrobbble\\Scrobbble_API', 'register_api_routes' ) );
 

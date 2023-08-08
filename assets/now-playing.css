@@ -1,0 +1,20 @@
+.wp-block-scrobbble-now-playing {
+	font-size: 75%;
+}
+
+.wp-block-scrobbble-now-playing > div {
+	border: 1px #ccc solid;
+	background: rgba(238, 238, 238, 0.9);
+	padding: 1.125rem 1.25rem;
+}
+
+.wp-block-scrobbble-now-playing > div > small {
+	display: block;
+	text-transform: uppercase;
+	letter-spacing: 0.0625rem;
+	margin-block: 0.25rem;
+}
+
+.wp-block-scrobbble-now-playing > div > span {
+	display: block;
+}

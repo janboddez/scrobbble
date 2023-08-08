@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require dirname( __FILE__ ) . '/includes/class-blocks.php';
 require dirname( __FILE__ ) . '/includes/class-scrobbble-api.php';
 require dirname( __FILE__ ) . '/includes/class-scrobbble-cpt.php';
 require dirname( __FILE__ ) . '/includes/class-scrobbble.php';
