@@ -36,7 +36,8 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		if ( '' !== current ) {
 			// @todo: Make this generic!
 			const aboutUrl = nowPlaying.dataset?.url ?? '';
-			let heading    = '<span>' + ( nowPlaying.dataset?.title ?? window.wp.i18n.__( 'Now Playing', 'scrobbble' ) ) + '</span>';
+			let heading    = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" style="position:relative;top:0.25em;"><g style="fill:none;fill-rule:evenodd;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round"><path d="M3.5 5.5v4M5.5 3.5v9M7.5 6.5v2M9.5 4.5v6.814M11.5 1.5v12"/></g></svg>';
+			heading       += ' <span>' + ( nowPlaying.dataset?.title ?? window.wp.i18n.__( 'Now Playing', 'scrobbble' ) ) + '</span>';
 
 			if ( aboutUrl ) {
 				heading += ' ' + window.wp.i18n.sprintf( '<a href="%s" target="_blank" rel="noopener noreferrer"><abbr title="%s">[?]</abbr></a>', aboutUrl, window.wp.i18n.__( 'What is this?', 'scrobbble' ) );
