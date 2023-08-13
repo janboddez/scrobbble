@@ -138,5 +138,20 @@ class Scrobbble_CPT {
 				'menu_icon'         => 'dashicons-format-audio',
 			)
 		);
+
+		// Add listens to IndieBlocks' list of "titleless" post types.
+		add_filter( 'indieblocks_short-form_post_types', array( __CLASS__, 'indieblocks_post_types' ) );
+	}
+
+	/**
+	 * Prevents IndieBlocks from adding a `p-name` class to listens' post title.
+	 *
+	 * @param  array $post_types Post types considered titleless.
+	 * @return array             Filtered post type array.
+	 */
+	public static function indieblocks_post_types( $post_types ) {
+		$post_types[] = 'iwcpt_listen';
+
+		return array_unique( $post_types );
 	}
 }
