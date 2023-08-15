@@ -77,7 +77,7 @@ class Scrobbble_API {
 		$client     = $request->get_param( 'c' ) ?: '';
 		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
-		if ( ! static::check_standard_auth( $auth_token, $timestamp ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
+		if ( ! static::check_standard_auth( $auth_token, $timestamp, $user ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
 			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
@@ -286,11 +286,18 @@ class Scrobbble_API {
 	/**
 	 * Auth token validation.
 	 *
-	 * @param  string $token     Auth token.
-	 * @param  string $timestamp Timestamp.
+	 * @param  string   $token     Auth token.
+	 * @param  string   $timestamp Timestamp.
+	 * @param  \WP_User $user      User.
 	 * @return bool
 	 */
-	protected static function check_standard_auth( $token, $timestamp ) {
+	protected static function check_standard_auth( $token, $timestamp, $user = null ) {
+		// Allow per-user passwords. We might eventually choose to store these
+		// as user meta.
+		if ( null !== $user && defined( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) ) {
+			return md5( md5( constant( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) ) . $timestamp ) === $token;
+		}
+
 		if ( ! defined( 'SCROBBBLE_PASS' ) ) {
 			return false;
 		}
