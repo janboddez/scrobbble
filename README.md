@@ -61,13 +61,23 @@ Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 No. This plugin aims to fully replace those services.
 
 ## Uh, What's My Username and Password?
-Your username would be your WordPress username. Your password can be anything, as long as it's defined in `wp-config.php` like so:
+Your username would be your **WordPress username**. Your password can be **anything**, as long as it's defined in `wp-config.php` like so:
 ```
 define( 'SCROBBBLE_PASS', 'your-password-of-choice' ); // Add this password to your media player's config, too.
 ```
 (Tip: Make it long, hard to guess, and different from your WordPress password.)
 
 As that's this plugin's only "setting," there is no Settings page or anything.
+
+### Multi-User Support
+If your WordPress site has multiple autors (or is a multisite install), you can define one password per user, like so:
+```
+// Suppose your user name (login) is "alice."
+define( 'SCROBBBLE_PASS_ALICE, 'your-super-unique-password' );
+// Or "josh" ...
+define( 'SCROBBBLE_PASS_JOSH, 'another-password' );
+```
+Again, do not use your actual WordPress password but something unique (and make sure it's set the same in your audio player/scrobbler, of course).
 
 ## What's With the Custom Taxonomies?
 They're there, but not actually used. I added them after I had a look at [Playlist Log](https://wordpress.org/plugins/playlistlog/), a similar WordPress plugin, but haven't gotten around to them, yet.
