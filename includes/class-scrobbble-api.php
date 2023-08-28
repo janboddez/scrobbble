@@ -130,9 +130,10 @@ class Scrobbble_API {
 			$length     = intval( $request->get_param( 'l' ) ?: 300 );
 			// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
-			$user_id = static::user_id_from_session_id( $session_id ); // Here, too, we could (should?) do this in the permission callback.
+			$session = static::get_session( $session_id );
+			$user_id = ! empty( $session->user_id ) ? $session->user_id : 0;
 
-			if ( empty( $user_id ) ) {
+			if ( 0 === $user_id ) {
 				error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				header( 'Content-Type: text/plain; charset=UTF-8' );
 				die( "FAILED\n" );
@@ -193,9 +194,10 @@ class Scrobbble_API {
 		$times      = $request->get_param( 'i' ) ?: array();
 		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
 
-		$user_id = static::user_id_from_session_id( $session_id ); // Here, too, we could (should?) do this in the permission callback.
+		$session = static::get_session( $session_id ); // Here, too, we could (should?) do this in the permission callback.
+		$user_id = ! empty( $session->user_id ) ? $session->user_id : 0;
 
-		if ( empty( $user_id ) ) {
+		if ( 0 === $user_id ) {
 			error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
@@ -264,11 +266,13 @@ class Scrobbble_API {
 				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $time ),
 			);
 
-			if ( ! empty( $mbid ) ) {
-				// Store the track's MusicBrainz ID.
-				$args['meta_input'] = array( 'mbid' => $mbid );
-				// To do: add client information?
-			}
+			// Store the track's MusicBrainz ID.
+			$args['meta_input'] = array_filter(
+				array(
+					'_scrobbble_mbid'   => $mbid,
+					'_scrobbble_client' => ! empty( $session->client ) ? $session->client : '',
+				)
+			);
 
 			$post_id = wp_insert_post( $args );
 
@@ -325,9 +329,9 @@ class Scrobbble_API {
 	 * Returns the WP user ID for a given session.
 	 *
 	 * @param  string $session_id API session ID.
-	 * @return int
+	 * @return object|null        Session data, or `null` on failure.
 	 */
-	protected static function user_id_from_session_id( $session_id ) {
+	protected static function get_session( $session_id ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'scrobbble_sessions';
@@ -335,13 +339,13 @@ class Scrobbble_API {
 		// Delete expired sessions.
 		$wpdb->query( $wpdb->prepare( "DELETE FROM $table_name WHERE expires < %d", time() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		$user_id = $wpdb->get_var( $wpdb->prepare( "SELECT user_id FROM $table_name WHERE session_id = %s", $session_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$session = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE session_id = %s", $session_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		if ( empty( $user_id ) ) {
+		if ( empty( $session ) ) {
 			error_log( '[Scrobbble] User has no active sessions.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			return 0;
+			return null;
 		}
 
-		return (int) $user_id;
+		return $session;
 	}
 }
