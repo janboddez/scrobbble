@@ -48,12 +48,12 @@ add_action( 'scrobbble_save_track', function( $post_id, $data ) {
 Remember when Dan Cederholm created Dribbble and it was super cool? 'Cause we do.
 
 ## I use MPD, How Do I Get This to Work?
-Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/etc/mpdscribbble.conf` (or `~/.mpdscribble/mpdscribble.conf`), under `#[libre.fm]`, add your WordPress username, your password of choice, and your site's Scrobbble (e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble`) endpoint.
+Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/etc/mpdscribbble.conf` (or `~/.mpdscribble/mpdscribble.conf`), under `[libre.fm]`, add your WordPress username, your password of choice, and your site's Scrobbble (e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble`) endpoint.
 
 ## I use foobar2000, How Do I Get This to Work?
 (This is extremely niche, but) you'll probably need to install [this 10-year-old plugin](https://www.foobar2000.org/components/view/foo_audioscrobbler), but not before you've used a hex editor to modify its baked-in scrobbling endpoint. [This Reddit post](https://web.archive.org/web/20180522184216/https://www.reddit.com/r/foobar2000/comments/3zaiy6/guide_to_librefm_scrobbling_lastfm_backup_to/) explains how to do that.
 
-(My endpoint, turns out, was too long, and I set up a shorter URL which redirects to it to work around that limitation.)
+(My endpoint, turns out, was too long, and I set up a shorter URL which redirects to it to work around that limitation. If this happens to be the case for you, too: only the `/scrobbble/v1/scrobbble` endpoint needs this redirect.)
 
 Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 
@@ -61,13 +61,23 @@ Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 No. This plugin aims to fully replace those services.
 
 ## Uh, What's My Username and Password?
-Your username would be your WordPress username. Your password can be anything, as long as it's defined in `wp-config.php` like so:
+Your username would be your **WordPress username**. Your password can be **anything**, as long as it's defined in `wp-config.php` like so:
 ```
 define( 'SCROBBBLE_PASS', 'your-password-of-choice' ); // Add this password to your media player's config, too.
 ```
 (Tip: Make it long, hard to guess, and different from your WordPress password.)
 
 As that's this plugin's only "setting," there is no Settings page or anything.
+
+### Multi-User Support
+If your WordPress site has multiple autors (or is a multisite install), you can define one password per user, like so:
+```
+// Suppose your user name (login) is "alice."
+define( 'SCROBBBLE_PASS_ALICE, 'your-super-unique-password' );
+// Or "josh" ...
+define( 'SCROBBBLE_PASS_JOSH, 'another-password' );
+```
+Again, do not use your actual WordPress password but something unique (and make sure it's set the same in your audio player/scrobbler, of course).
 
 ## What's With the Custom Taxonomies?
 They're there, but not actually used. I added them after I had a look at [Playlist Log](https://wordpress.org/plugins/playlistlog/), a similar WordPress plugin, but haven't gotten around to them, yet.
