@@ -276,6 +276,10 @@ class Scrobbble_API {
 
 			$post_id = wp_insert_post( $args );
 
+			// Using custom taxonomies for artist and album information.
+			wp_set_object_terms( $post_id, array( $artist ), 'iwcpt_artist' );
+			wp_set_object_terms( $post_id, array( $album ), 'iwcpt_album' );
+
 			// For add-on plugins (cover art, etc.) to be able to do their
 			// thing.
 			// To do: deprecate in favor of core hooks, e.g.,
