@@ -41,7 +41,7 @@ class Scrobbble {
 		register_activation_hook( dirname( dirname( __FILE__ ) ) . '/scrobbble.php', array( $this, 'activate' ) );
 
 		add_action( 'init', array( 'Scrobbble\\Blocks', 'register_blocks' ) );
-		add_action( 'init', array( 'Scrobbble\\Scrobbble_CPT', 'register' ) );
+		add_action( 'init', array( 'Scrobbble\\Scrobbble_CPT', 'register' ), 1 ); // Early, because otherwise the custom taxonomy block won't show.
 		add_action( 'rest_api_init', array( 'Scrobbble\\Scrobbble_API', 'register_api_routes' ) );
 
 		add_filter( 'wp_insert_post_data', array( $this, 'set_slug' ), 10, 2 );

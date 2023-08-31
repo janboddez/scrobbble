@@ -44,6 +44,8 @@ class Scrobbble_CPT {
 					'slug'       => __( 'listens/artist', 'scrobbble' ),
 					'with_front' => false,
 				),
+				'show_in_rest'          => true,
+				'public'                => true,
 			)
 		);
 
@@ -76,6 +78,8 @@ class Scrobbble_CPT {
 					'slug'       => __( 'listens/album', 'scrobbble' ),
 					'with_front' => false,
 				),
+				'show_in_rest'          => true,
+				'public'                => true,
 			)
 		);
 
@@ -108,6 +112,8 @@ class Scrobbble_CPT {
 					'slug'       => __( 'listens/genre', 'scrobbble' ),
 					'with_front' => false,
 				),
+				'show_in_rest'          => true,
+				'public'                => true,
 			)
 		);
 
@@ -136,6 +142,7 @@ class Scrobbble_CPT {
 				),
 				'supports'          => array( 'author', 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'trackbacks', 'comments' ),
 				'menu_icon'         => 'dashicons-format-audio',
+				'show_in_rest'      => true,
 			)
 		);
 
