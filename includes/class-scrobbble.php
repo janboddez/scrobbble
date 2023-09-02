@@ -14,7 +14,7 @@ class Scrobbble {
 	/**
 	 * Plugin version.
 	 */
-	const PLUGIN_VERSION = '0.1.1';
+	const PLUGIN_VERSION = '0.1.2';
 
 	/**
 	 * Single plugin instance.

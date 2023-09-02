@@ -1,10 +1,11 @@
 .wp-block-scrobbble-now-playing {
-	font-size: 75%;
-}
-
-.wp-block-scrobbble-now-playing > div {
+	align-items: center;
 	border: 1px #ccc solid;
 	background: rgba(238, 238, 238, 0.9);
+	display: flex;
+	gap: 1.25rem;
+	justify-content: space-between;
+	font-size: 75%;
 	padding: 1.125rem 1.25rem;
 }
 
@@ -12,15 +13,5 @@
 	display: block;
 	text-transform: uppercase;
 	letter-spacing: 0.0625rem;
-	margin-block: 0.25rem;
-}
-
-.wp-block-scrobbble-now-playing > div > span {
-	display: block;
-}
-
-.wp-block-scrobbble-now-playing > div::after {
-    clear: both;
-    content: '';
-    display: table;
+	margin-block: 0.125rem 0.25rem;
 }

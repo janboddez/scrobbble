@@ -25,25 +25,30 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		}
 
 		let output  = '';
+		let cover   = '';
 		let current = '';
 
 		if ( response.title ) {
-			artist   = response.artist ?? '';
-			album    = response.album ?? '';
-			current += response.title + ( '' !== artist ? ' – ' + response.artist : '' ) + ( '' !== album ? ' <span class="screen-reader-text">(' + response.album + ')</span>' : '' );
+			const artist = response.artist ?? '';
+			const album  = response.album ?? '';
+
+			current     += response.title + ( '' !== artist ? ' – ' + response.artist : '' ) + ( '' !== album ? ' <span class="screen-reader-text">(' + response.album + ')</span>' : '' );
 		}
 
 		if ( '' !== current ) {
 			// @todo: Make this generic!
 			const aboutUrl = nowPlaying.dataset?.url ?? '';
-			let heading    = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" style="position:relative;top:0.25em;"><g style="fill:none;fill-rule:evenodd;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round"><path d="M3.5 5.5v4M5.5 3.5v9M7.5 6.5v2M9.5 4.5v6.814M11.5 1.5v12"/></g></svg>';
-			heading       += ' <span>' + ( nowPlaying.dataset?.title ?? window.wp.i18n.__( 'Now Playing', 'scrobbble' ) ) + '</span>';
+			let heading    = '<span>' + ( nowPlaying.dataset?.title ?? window.wp.i18n.__( 'Now Playing', 'scrobbble' ) ) + '</span>';
 
 			if ( aboutUrl ) {
 				heading += ' ' + window.wp.i18n.sprintf( '<a href="%s" target="_blank" rel="noopener noreferrer"><abbr title="%s">[?]</abbr></a>', aboutUrl, window.wp.i18n.__( 'What is this?', 'scrobbble' ) );
 			}
 
-			output = '<div><small>' + heading + '</small><span>' + current + '</span></div>';
+			if ( response.cover ) {
+				cover += '<img src="' + response.cover + '" width="60" height="60" alt="" />';
+			}
+
+			output = '<div><small>' + heading + '</small><span>' + current + '</span></div>' + cover;
 		} else {
 			output = '';
 		}

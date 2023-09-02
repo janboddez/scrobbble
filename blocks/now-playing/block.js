@@ -31,15 +31,6 @@
 					)
 				),
 				el( 'div', {},
-					el( 'img', {
-						src: scrobbble_now_playing_obj.assets_url + 'disc.png',
-						width: 60,
-						height: 60,
-						alt: '',
-						style: {
-							float: 'inline-end',
-						},
-					} ),
 					'' !== url
 						? el( 'small', {},
 							interpolate( sprintf( '<span>%s</span> <a><abbr>[?]</abbr></a>', ( '' !== title ? title : __( 'Now Playing', 'scrobbble' ) ) ), {
@@ -56,7 +47,13 @@
 							span: el( 'span', { className: 'screen-reader-text' } ),
 						} )
 					)
-				)
+				),
+				el( 'img', {
+					src: scrobbble_now_playing_obj.assets_url + 'disc.png',
+					width: 60,
+					height: 60,
+					alt: '',
+				} )
 			);
 		},
 	} );

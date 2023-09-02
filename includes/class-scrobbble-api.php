@@ -114,7 +114,7 @@ class Scrobbble_API {
 	}
 
 	/**
-	 * "Now Playing" callback. Not actually implemented.
+	 * "Now Playing" callback.
 	 *
 	 * @param  \WP_REST_Request $request Rest request.
 	 * @return array                     Response.
@@ -153,6 +153,16 @@ class Scrobbble_API {
 				die( "FAILED\n" );
 			}
 
+			if ( is_string( $album ) ) {
+				$hash       = hash( 'sha256', $artist . $album );
+				$upload_dir = wp_upload_dir();
+				$files      = glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
+				if ( ! empty( $files[0] ) ) {
+					// Recreate URL.
+					$image = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $files[0] );
+				}
+			}
+
 			set_transient(
 				'scrobbble_nowplaying',
 				array(
@@ -160,6 +170,7 @@ class Scrobbble_API {
 					'artist' => apply_filters( 'scrobbble_artist', sanitize_text_field( $artist ) ),
 					'album'  => apply_filters( 'scrobbble_album', sanitize_text_field( $album ) ),
 					'mbid'   => ! empty( $mbid ) ? static::sanitize_mbid( $mbid ) : '',
+					'cover'  => apply_filters( 'scrobbble_cover', ! empty( $image ) ? esc_url( $image ) : '' ),
 				),
 				$length < 5400 ? $length : 600
 			);

@@ -3,7 +3,7 @@
  * Plugin Name: Scrobbble
  * Plugin URI:  https://jan.boddez.net/wordpress/scrobbble
  * Description: Consume audio scrobbles, just like Last.fm or Libre.fm would.
- * Version:     0.1.1
+ * Version:     0.1.2
  * Author:      Jan Boddez
  * Author URI:  https://jan.boddez.net/
  * License:     GNU General Public License v3
