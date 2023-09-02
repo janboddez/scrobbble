@@ -18,3 +18,9 @@
 .wp-block-scrobbble-now-playing > div > span {
 	display: block;
 }
+
+.wp-block-scrobbble-now-playing > div::after {
+    clear: both;
+    content: '';
+    display: table;
+}

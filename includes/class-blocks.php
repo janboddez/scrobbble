@@ -28,6 +28,14 @@ class Blocks {
 				'render_callback' => array( __CLASS__, 'render_now_playing_block' ),
 			)
 		);
+
+		wp_localize_script(
+			generate_block_asset_handle( 'scrobbble/now-playing', 'editorScript' ),
+			'scrobbble_now_playing_obj',
+			array(
+				'assets_url' => plugins_url( '/assets/', __DIR__ ),
+			)
+		);
 	}
 
 	/**
