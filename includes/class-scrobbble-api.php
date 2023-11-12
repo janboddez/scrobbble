@@ -153,10 +153,16 @@ class Scrobbble_API {
 				die( "FAILED\n" );
 			}
 
+			// @todo: Move to add-on plugin, i.e., make the whole "now playing" array (or object) filterable.
 			if ( is_string( $album ) ) {
 				$hash       = hash( 'sha256', $artist . $album );
 				$upload_dir = wp_upload_dir();
-				$files      = glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
+				if ( function_exists( '\\Scrobbble\\AddOn\\glob' ) ) {
+					$files = \Scrobbble\AddOn\glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
+				} else {
+					$files = glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
+				}
+
 				if ( ! empty( $files[0] ) ) {
 					// Recreate URL.
 					$image = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $files[0] );
@@ -294,7 +300,7 @@ class Scrobbble_API {
 
 			// Using custom taxonomies for artist and album information.
 			wp_set_object_terms( $post_id, array( $artist ), 'iwcpt_artist' );
-			wp_set_object_terms( $post_id, array( $album ), 'iwcpt_album' );
+			wp_set_object_terms( $post_id, array( "$artist - $album" ), 'iwcpt_album' );
 
 			// For add-on plugins (cover art, etc.) to be able to do their
 			// thing.
