@@ -54,7 +54,7 @@ class Scrobbble_API {
 	 * @param \WP_REST_Request $request Rest request.
 	 */
 	public static function handshake( $request ) {
-		$username = $request->get_param( 'u' ) ?: ''; // phpcs:ignore WordPress.PHP.DisallowShortTernary.Found
+		$username = $request->get_param( 'u' ) ?: ''; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 
 		if ( empty( $username ) ) {
 			error_log( '[Scrobbble] Missing username.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -70,12 +70,12 @@ class Scrobbble_API {
 			die( "FAILED\n" );
 		}
 
-		// phpcs:disable WordPress.PHP.DisallowShortTernary.Found
+		// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 		$protocol   = $request->get_param( 'p' ) ?: '';
 		$timestamp  = $request->get_param( 't' ) ?: '';
 		$auth_token = $request->get_param( 'a' ) ?: '';
 		$client     = $request->get_param( 'c' ) ?: '';
-		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
+		// phpcs:enable Universal.Operators.DisallowShortTernary.Found
 
 		if ( ! static::check_standard_auth( $auth_token, $timestamp, $user ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
 			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -121,14 +121,14 @@ class Scrobbble_API {
 	 */
 	public static function now( $request ) {
 		if ( 'POST' === $request->get_method() ) {
-			// phpcs:disable WordPress.PHP.DisallowShortTernary.Found
+			// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 			$session_id = $request->get_param( 's' ) ?: '';
 			$title      = $request->get_param( 't' ) ?: '';
 			$artist     = $request->get_param( 'a' ) ?: '';
 			$album      = $request->get_param( 'b' ) ?: '';
 			$mbid       = $request->get_param( 'm' ) ?: '';
 			$length     = intval( $request->get_param( 'l' ) ?: 300 );
-			// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
+			// phpcs:enable Universal.Operators.DisallowShortTernary.Found
 
 			$session = static::get_session( $session_id );
 			$user_id = ! empty( $session->user_id ) ? $session->user_id : 0;
@@ -196,14 +196,14 @@ class Scrobbble_API {
 	 * @param WP_REST_Request $request WP Rest request.
 	 */
 	public static function scrobble( $request ) {
-		// phpcs:disable WordPress.PHP.DisallowShortTernary.Found
+		// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 		$session_id = $request->get_param( 's' ) ?: '';
 		$titles     = $request->get_param( 't' ) ?: array();
 		$artists    = $request->get_param( 'a' ) ?: array();
 		$albums     = $request->get_param( 'b' ) ?: array();
 		$mbids      = $request->get_param( 'm' ) ?: array();
 		$times      = $request->get_param( 'i' ) ?: array();
-		// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
+		// phpcs:enable Universal.Operators.DisallowShortTernary.Found
 
 		$session = static::get_session( $session_id ); // Here, too, we could (should?) do this in the permission callback.
 		$user_id = ! empty( $session->user_id ) ? $session->user_id : 0;
@@ -231,13 +231,13 @@ class Scrobbble_API {
 		$count = count( $titles );
 
 		for ( $i = 0; $i < $count; $i++ ) {
-			// phpcs:disable WordPress.PHP.DisallowShortTernary.Found
+			// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 			$title  = apply_filters( 'scrobbble_title', sanitize_text_field( $titles[ $i ] ) ?: '' );
 			$artist = apply_filters( 'scrobbble_artist', sanitize_text_field( $artists[ $i ] ) ?: '' );
 			$album  = apply_filters( 'scrobbble_album', sanitize_text_field( $albums[ $i ] ) ?: '' );
 			$mbid   = $mbids[ $i ] ? static::sanitize_mbid( $mbids[ $i ] ) : '';
 			$time   = $times[ $i ] ?: time();
-			// phpcs:enable WordPress.PHP.DisallowShortTernary.Found
+			// phpcs:enable Universal.Operators.DisallowShortTernary.Found
 
 			if ( empty( $title ) || empty( $artist ) ) {
 				// Skip.
@@ -267,6 +267,11 @@ class Scrobbble_API {
 
 			$content .= '.';
 			$content  = apply_filters( 'scrobbble_content', $content, $data );
+
+			// Avoid duplicates, so we don't have to rely on clients for this.
+			if ( self::track_exists( $content, $time ) ) {
+				continue;
+			}
 
 			$args = array(
 				'post_author'   => $user_id,
@@ -322,6 +327,38 @@ class Scrobbble_API {
 		}
 
 		return md5( md5( SCROBBBLE_PASS ) . $timestamp ) === $token;
+	}
+
+	/**
+	 * Whether a listen already exists.
+	 *
+	 * @param  string $content "Listen" content.
+	 * @param  int    $time    Timestamp.
+	 * @return bool
+	 */
+	protected static function track_exists( $content, $time ) {
+		$tracks = get_posts(
+			array(
+				'post_type'    => 'iwcpt_listen',
+				'post_content' => $content,
+				'date_query'   => array(
+					array(
+						'column'    => 'post_date_gmt',
+						'before'    => gmdate( 'Y-m-d H:i:s', $time ),
+						'after'     => gmdate( 'Y-m-d H:i:s', $time ),
+						'inclusive' => true, // Include exact matches for `before` and `after`.
+					),
+				),
+				'fields'       => 'ids',
+			)
+		);
+
+		if ( empty( $tracks ) ) {
+			return false;
+		}
+
+		error_log( '[Scrobbble] Looks like this listen already exists.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return true;
 	}
 
 	/**
