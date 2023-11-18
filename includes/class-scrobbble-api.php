@@ -54,11 +54,13 @@ class Scrobbble_API {
 	 * @param \WP_REST_Request $request Rest request.
 	 */
 	public static function handshake( $request ) {
+		header( 'Cache-Control: no-cache' );
+		header( 'Content-Type: text/plain; charset=UTF-8' );
+
 		$username = $request->get_param( 'u' ) ?: ''; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 
 		if ( empty( $username ) ) {
 			error_log( '[Scrobbble] Missing username.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
@@ -66,7 +68,6 @@ class Scrobbble_API {
 
 		if ( empty( $user ) ) {
 			error_log( '[Scrobbble] Invalid username.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
@@ -79,7 +80,6 @@ class Scrobbble_API {
 
 		if ( ! static::check_standard_auth( $auth_token, $timestamp, $user ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
 			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
@@ -99,13 +99,11 @@ class Scrobbble_API {
 
 		if ( empty( $num_rows ) ) {
 			error_log( '[Scrobbble] Handshake failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
 		error_log( '[Scrobbble] Handshake succeeded.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 
-		header( 'Content-Type: text/plain; charset=UTF-8' );
 		echo "OK\n";
 		echo "$session_id\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo esc_url_raw( get_rest_url( null, 'scrobbble/v1/nowplaying' ) ) . "\n"; // Not really interested in implementing this, but maybe we have to?
@@ -120,6 +118,9 @@ class Scrobbble_API {
 	 * @return array                     Response.
 	 */
 	public static function now( $request ) {
+		header( 'Cache-Control: no-cache' );
+		header( 'Content-Type: text/plain; charset=UTF-8' );
+
 		if ( 'POST' === $request->get_method() ) {
 			// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 			$session_id = $request->get_param( 's' ) ?: '';
@@ -135,7 +136,6 @@ class Scrobbble_API {
 
 			if ( 0 === $user_id ) {
 				error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				header( 'Content-Type: text/plain; charset=UTF-8' );
 				die( "FAILED\n" );
 			}
 
@@ -143,13 +143,11 @@ class Scrobbble_API {
 
 			if ( empty( $artist ) || empty( $title ) ) {
 				error_log( '[Scrobbble] Incomplete scrobble.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				header( 'Content-Type: text/plain; charset=UTF-8' );
 				die( "FAILED\n" );
 			}
 
 			if ( ! is_string( $artist ) || ! is_string( $title ) ) {
 				error_log( '[Scrobbble] Incorrectly formatted array data.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				header( 'Content-Type: text/plain; charset=UTF-8' );
 				die( "FAILED\n" );
 			}
 
@@ -167,19 +165,18 @@ class Scrobbble_API {
 				$length < 5400 ? $length : 600
 			);
 
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "OK\n" );
-		} else {
-			// GET requests. This bit is always publicly accessible.
-			$now_playing = get_transient( 'scrobbble_nowplaying' );
-
-			if ( ! is_array( $now_playing ) ) {
-				return array();
-			}
-
-			// Return previously stored song information.
-			return array_filter( $now_playing );
 		}
+
+		// GET request. This bit is always publicly accessible.
+		$now_playing = get_transient( 'scrobbble_nowplaying' );
+
+		if ( ! is_array( $now_playing ) ) {
+			return array();
+		}
+
+		// Return previously stored song information.
+		return array_filter( $now_playing );
 	}
 
 	/**
@@ -188,6 +185,9 @@ class Scrobbble_API {
 	 * @param WP_REST_Request $request WP Rest request.
 	 */
 	public static function scrobble( $request ) {
+		header( 'Cache-Control: no-cache' );
+		header( 'Content-Type: text/plain; charset=UTF-8' );
+
 		// phpcs:disable Universal.Operators.DisallowShortTernary.Found
 		$session_id = $request->get_param( 's' ) ?: '';
 		$titles     = $request->get_param( 't' ) ?: array();
@@ -202,7 +202,6 @@ class Scrobbble_API {
 
 		if ( 0 === $user_id ) {
 			error_log( '[Scrobbble] Could not find user by session ID.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
@@ -210,13 +209,11 @@ class Scrobbble_API {
 
 		if ( empty( $artists ) || empty( $titles ) || empty( $times ) ) {
 			error_log( '[Scrobbble] Incomplete scrobble.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
 		if ( ! is_array( $artists ) || ! is_array( $titles ) || ! is_array( $times ) || ! is_array( $albums ) || ! is_array( $mbids ) ) {
 			error_log( '[Scrobbble] Incorrectly formatted array data.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			header( 'Content-Type: text/plain; charset=UTF-8' );
 			die( "FAILED\n" );
 		}
 
@@ -295,7 +292,6 @@ class Scrobbble_API {
 			do_action( 'scrobbble_save_track', $post_id, $data );
 		}
 
-		header( 'Content-Type: text/plain; charset=UTF-8' );
 		die( "OK\n" );
 	}
 
