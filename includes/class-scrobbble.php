@@ -38,7 +38,7 @@ class Scrobbble {
 	 * Registers hook callbacks.
 	 */
 	public function register() {
-		register_activation_hook( dirname( dirname( __FILE__ ) ) . '/scrobbble.php', array( $this, 'activate' ) );
+		register_activation_hook( dirname( __DIR__ ) . '/scrobbble.php', array( $this, 'activate' ) );
 
 		add_action( 'init', array( 'Scrobbble\\Blocks', 'register_blocks' ) );
 		add_action( 'init', array( 'Scrobbble\\Scrobbble_CPT', 'register' ), 1 ); // Early, because otherwise the custom taxonomy block won't show.
