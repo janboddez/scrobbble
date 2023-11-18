@@ -154,30 +154,16 @@ class Scrobbble_API {
 			}
 
 			// @todo: Move to add-on plugin, i.e., make the whole "now playing" array (or object) filterable.
-			if ( is_string( $album ) ) {
-				$hash       = hash( 'sha256', $artist . $album );
-				$upload_dir = wp_upload_dir();
-				if ( function_exists( '\\Scrobbble\\AddOn\\glob' ) ) {
-					$files = \Scrobbble\AddOn\glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
-				} else {
-					$files = glob( trailingslashit( $upload_dir['basedir'] ) . "scrobbble-art/$hash.*" );
-				}
-
-				if ( ! empty( $files[0] ) ) {
-					// Recreate URL.
-					$image = str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $files[0] );
-				}
-			}
+			$now = array(
+				'title'  => apply_filters( 'scrobbble_title', sanitize_text_field( $title ) ),
+				'artist' => apply_filters( 'scrobbble_artist', sanitize_text_field( $artist ) ),
+				'album'  => apply_filters( 'scrobbble_album', sanitize_text_field( $album ) ),
+				'mbid'   => ! empty( $mbid ) ? static::sanitize_mbid( $mbid ) : '',
+			);
 
 			set_transient(
 				'scrobbble_nowplaying',
-				array(
-					'title'  => apply_filters( 'scrobbble_title', sanitize_text_field( $title ) ),
-					'artist' => apply_filters( 'scrobbble_artist', sanitize_text_field( $artist ) ),
-					'album'  => apply_filters( 'scrobbble_album', sanitize_text_field( $album ) ),
-					'mbid'   => ! empty( $mbid ) ? static::sanitize_mbid( $mbid ) : '',
-					'cover'  => apply_filters( 'scrobbble_cover', ! empty( $image ) ? esc_url( $image ) : '' ),
-				),
+				apply_filters( 'scrobbble_nowplaying', $now, $request ),
 				$length < 5400 ? $length : 600
 			);
 
