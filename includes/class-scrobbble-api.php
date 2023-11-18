@@ -54,7 +54,6 @@ class Scrobbble_API {
 	 * @param \WP_REST_Request $request Rest request.
 	 */
 	public static function handshake( $request ) {
-		header( 'Cache-Control: no-cache' );
 		header( 'Content-Type: text/plain; charset=UTF-8' );
 
 		$username = $request->get_param( 'u' ) ?: ''; // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
@@ -118,7 +117,6 @@ class Scrobbble_API {
 	 * @return array                     Response.
 	 */
 	public static function now( $request ) {
-		header( 'Cache-Control: no-cache' );
 		header( 'Content-Type: text/plain; charset=UTF-8' );
 
 		if ( 'POST' === $request->get_method() ) {
@@ -185,7 +183,6 @@ class Scrobbble_API {
 	 * @param WP_REST_Request $request WP Rest request.
 	 */
 	public static function scrobble( $request ) {
-		header( 'Cache-Control: no-cache' );
 		header( 'Content-Type: text/plain; charset=UTF-8' );
 
 		// phpcs:disable Universal.Operators.DisallowShortTernary.Found
