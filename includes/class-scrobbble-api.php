@@ -8,7 +8,7 @@
 namespace Scrobbble;
 
 /**
- * Implements Last.fm's v1.2 scrobbing API.
+ * Implements Last.fm's v1.2 scrobbling API.
  */
 class Scrobbble_API {
 	/**
@@ -75,9 +75,15 @@ class Scrobbble_API {
 		$timestamp  = $request->get_param( 't' ) ?: '';
 		$auth_token = $request->get_param( 'a' ) ?: '';
 		$client     = $request->get_param( 'c' ) ?: '';
+		$api_key    = $request->get_param( 'api_key' ) ?: '';
+		$sk         = $request->get_param( 'sk' ) ?: '';
+
 		// phpcs:enable Universal.Operators.DisallowShortTernary.Found
 
-		if ( ! static::check_standard_auth( $auth_token, $timestamp, $user ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
+		if ( ! empty( $api_key ) && ! empty( $sk ) && ! static::check_web_auth( $auth_token, $timestamp, $api_key, $sk, $user ) ) {
+			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			die( "FAILED\n" );
+		} elseif ( ! static::check_standard_auth( $auth_token, $timestamp, $user ) ) { // Assuming "Auth Token" auth. We could use the permission callback for this.
 			error_log( '[Scrobbble] Authentication failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			die( "FAILED\n" );
 		}
@@ -297,6 +303,26 @@ class Scrobbble_API {
 	 *
 	 * @param  string   $token     Auth token.
 	 * @param  string   $timestamp Timestamp.
+	 * @param  string   $api_key   Client API key.
+	 * @param  string   $sk        Session key.
+	 * @param  \WP_User $user      User.
+	 * @return bool
+	 */
+	protected static function check_web_auth( $token, $timestamp, $api_key, $sk, $user ) {
+		$session = static::get_session( $sk );
+
+		if ( ! empty( $session->user_id ) && $session->user_id == $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Auth token validation.
+	 *
+	 * @param  string   $token     Auth token.
+	 * @param  string   $timestamp Timestamp.
 	 * @param  \WP_User $user      User.
 	 * @return bool
 	 */
@@ -368,7 +394,7 @@ class Scrobbble_API {
 	 * @param  string $session_id API session ID.
 	 * @return object|null        Session data, or `null` on failure.
 	 */
-	protected static function get_session( $session_id ) {
+	public static function get_session( $session_id ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'scrobbble_sessions';

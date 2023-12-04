@@ -21,10 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require dirname( __FILE__ ) . '/includes/class-blocks.php';
-require dirname( __FILE__ ) . '/includes/class-scrobbble-api.php';
-require dirname( __FILE__ ) . '/includes/class-scrobbble-cpt.php';
-require dirname( __FILE__ ) . '/includes/class-scrobbble.php';
+require __DIR__ . '/includes/class-blocks.php';
+require __DIR__ . '/includes/class-scrobbble-api.php';
+require __DIR__ . '/includes/class-scrobbble-api-2.php';
+require __DIR__ . '/includes/class-scrobbble-cpt.php';
+require __DIR__ . '/includes/class-scrobbble.php';
+require __DIR__ . '/includes/functions.php';
 
 $scrobbble = Scrobbble::get_instance();
 $scrobbble->register();
