@@ -19,24 +19,30 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		} );
 	};
 
+	let previous = '';
+
 	const render = ( response ) => {
 		if ( ! nowPlaying ) {
 			return;
 		}
 
-		let output  = '';
-		let cover   = '';
+		if ( JSON.stringify( response ) === previous  ) {
+			return;
+		}
+
+		previous = JSON.stringify( response );
+
 		let current = '';
+		let cover   = '';
 
 		if ( response.title ) {
 			const artist = response.artist ?? '';
 			const album  = response.album ?? '';
 
-			current     += response.title + ( '' !== artist ? ' – ' + response.artist : '' ) + ( '' !== album ? ' <span class="screen-reader-text">(' + response.album + ')</span>' : '' );
+			current += response.title + ( '' !== artist ? ' – ' + response.artist : '' ) + ( '' !== album ? ' <span class="screen-reader-text">(' + response.album + ')</span>' : '' );
 		}
 
 		if ( '' !== current ) {
-			// @todo: Make this generic!
 			const aboutUrl = nowPlaying.dataset?.url ?? '';
 			let heading    = '<span>' + ( nowPlaying.dataset?.title ?? window.wp.i18n.__( 'Now Playing', 'scrobbble' ) ) + '</span>';
 
@@ -48,12 +54,13 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				cover += '<img src="' + response.cover + '" width="60" height="60" alt="" />';
 			}
 
-			output = '<div><small>' + heading + '</small><span>' + current + '</span></div>' + cover;
+			nowPlaying.style.display = 'none';
+			nowPlaying.innerHTML     = '<div><small>' + heading + '</small><span><span>' + current + '</span></span></div>' + cover;
+			nowPlaying.style.display = 'flex';
 		} else {
-			output = '';
+			nowPlaying.style.display = 'none';
+			nowPlaying.innerHTML     = '';
 		}
-
-		nowPlaying.innerHTML = output;
 	};
 
 	let lastReload = parseInt( Date.now() / 1000 );

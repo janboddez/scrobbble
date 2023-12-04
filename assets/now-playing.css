@@ -1,17 +1,42 @@
 .wp-block-scrobbble-now-playing {
 	align-items: center;
-	border: 1px #ccc solid;
 	background: rgba(238, 238, 238, 0.9);
-	display: flex;
-	gap: 1.25rem;
+	border: 1px #ccc solid;
+	display: none;
+	gap: 1.25em;
 	justify-content: space-between;
-	font-size: 75%;
-	padding: 1.125rem 1.25rem;
+	padding: 1.125em 1.25em;
+}
+
+.wp-block-scrobbble-now-playing > div {
+	flex-grow: 1;
+	overflow: hidden;
 }
 
 .wp-block-scrobbble-now-playing > div > small {
 	display: block;
+	letter-spacing: 0.0625em;
+	margin-block: 0.125em 0.25em;
 	text-transform: uppercase;
-	letter-spacing: 0.0625rem;
-	margin-block: 0.125rem 0.25rem;
+}
+
+.wp-block-scrobbble-now-playing > div > span {
+	display: flex;
+}
+
+.wp-block-scrobbble-now-playing > div > span > span {
+	animation: scrolling-text 10s linear infinite;
+	display: block;
+	flex-grow: 1;
+	white-space: nowrap;
+	transform: translateX(100%);
+}
+
+@keyframes scrolling-text {
+	from {
+		transform: translateX(100%);
+	}
+	to {
+		transform: translateX(-100%);
+	}
 }
