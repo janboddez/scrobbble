@@ -311,7 +311,7 @@ class Scrobbble_API {
 	protected static function check_web_auth( $token, $timestamp, $api_key, $sk, $user ) {
 		$session = static::get_session( $sk );
 
-		if ( ! empty( $session->user_id ) && $session->user_id == $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		if ( ! empty( $session->user_id ) && intval( $session->user_id ) === $user->ID ) {
 			return true;
 		}
 
@@ -347,7 +347,7 @@ class Scrobbble_API {
 	 * @param  int    $time    Timestamp.
 	 * @return bool
 	 */
-	protected static function track_exists( $content, $time ) {
+	public static function track_exists( $content, $time ) {
 		$tracks = get_posts(
 			array(
 				'post_type'    => 'iwcpt_listen',
