@@ -1,9 +1,14 @@
 # Scrobbble
 Scrobble listening data to WordPress, directly.
 
-This plugin implements Last.fm's v1.2 scrobbling API, allowing media players to submit listening data straight to your WordPress site.
+This plugin _partially_ implements Last.fm's API, allowing media players to submit (or "scrobble") listening data straight to your WordPress site.
 
-It registers a new "Listen" Custom Post Type, and a number of filter (and action) hooks.
+Supported clients:
+- mpdscribble (Linux): uses the v1.2 API to submit "scrobbles" as well as "now playing" tracks.
+- foobar2000 (Windows): can be set up to use the v1.2 API to submit "scrobbles" as well as "now playing" tracks.
+- PanoScrobbler (Android): uses the v2.0 API to submit "scrobbles" as well as "now playing" tracks; other methods are currently not implemented.
+
+It registers a new "listen" custom post type, a "Now Playing" block, and a number of filter (and action) hooks.
 
 ## Hooks
 Here's some examples of further customizations.
@@ -53,12 +58,17 @@ Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/et
 ## I use foobar2000, How Do I Get This to Work?
 (This is extremely niche, but) you'll probably need to install [this 10-year-old plugin](https://www.foobar2000.org/components/view/foo_audioscrobbler), but not before you've used a hex editor to modify its baked-in scrobbling endpoint. [This Reddit post](https://web.archive.org/web/20180522184216/https://www.reddit.com/r/foobar2000/comments/3zaiy6/guide_to_librefm_scrobbling_lastfm_backup_to/) explains how to do that.
 
-(My endpoint, turns out, was too long, and I set up a shorter URL which redirects to it to work around that limitation. If this happens to be the case for you, too: only the `/scrobbble/v1/scrobbble` endpoint needs this redirect.)
+(My endpoint, turns out, was too long, and I set up a shorter URL which redirects to it to work around that limitation. If this happens to be the case for you, too: only the main `/wp-json/scrobbble/v1/scrobbble` endpoint needs this redirect.)
 
 Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 
+## I use PanoScrobbler, How Do I Get This to Work?
+You'll want to enable scrobbling to "GNU FM" (GNU FM being the software behind Libre.fm).
+
+For "API URL," enter, e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble/2.0`. Sign in with your WordPress login and the unique password you set in `wp-config.php`—see below.
+
 ## Do I Need a Last.fm or Libre.fm Account?
-No. This plugin aims to fully replace those services.
+No. This plugin fully replaces those services.
 
 ## Uh, What's My Username and Password?
 Your username would be your **WordPress username**. Your password can be **anything**, as long as it's defined in `wp-config.php` like so:

@@ -3,7 +3,7 @@
  * Plugin Name: Scrobbble
  * Plugin URI:  https://jan.boddez.net/wordpress/scrobbble
  * Description: Consume audio scrobbles, just like Last.fm or Libre.fm would.
- * Version:     0.1.2
+ * Version:     0.2.0
  * Author:      Jan Boddez
  * Author URI:  https://jan.boddez.net/
  * License:     GNU General Public License v3
@@ -26,7 +26,6 @@ require __DIR__ . '/includes/class-scrobbble-api.php';
 require __DIR__ . '/includes/class-scrobbble-api-2.php';
 require __DIR__ . '/includes/class-scrobbble-cpt.php';
 require __DIR__ . '/includes/class-scrobbble.php';
-require __DIR__ . '/includes/functions.php';
 
 $scrobbble = Scrobbble::get_instance();
 $scrobbble->register();

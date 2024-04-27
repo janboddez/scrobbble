@@ -8,13 +8,15 @@
 namespace Scrobbble;
 
 /**
- * Implements Last.fm's v1.2 scrobbling API.
+ * Implements Last.fm's v1.2 "submissions" API.
+ *
+ * @link https://www.last.fm/api/submissions
  */
 class Scrobbble_API {
 	/**
 	 * Registers API routes.
 	 */
-	public static function register_api_routes() {
+	public static function register_routes() {
 		register_rest_route(
 			'scrobbble/v1',
 			'/scrobbble',
@@ -163,11 +165,13 @@ class Scrobbble_API {
 				'mbid'   => ! empty( $mbid ) ? static::sanitize_mbid( $mbid ) : '',
 			);
 
-			set_transient(
-				'scrobbble_nowplaying',
-				apply_filters( 'scrobbble_nowplaying', $now, $request ),
-				$length < 5400 ? $length : 600
-			);
+			if ( ! apply_filters( 'scrobbble_skip_track', false, $now ) ) {
+				set_transient(
+					'scrobbble_nowplaying',
+					apply_filters( 'scrobbble_nowplaying', $now, $request ),
+					$length < 5400 ? $length : 600
+				);
+			}
 
 			die( "OK\n" );
 		}
@@ -251,48 +255,7 @@ class Scrobbble_API {
 				continue;
 			}
 
-			$content = "Listening to <span class=\"p-listen-of h-cite\"><cite class=\"p-name\">$title</cite> by <span class=\"p-author h-card\"><span class=\"p-name\">$artist</span></span></span>";
-
-			if ( ! empty( $album ) ) {
-				$content .= "<span class=\"screen-reader-text\"> ($album)</span>";
-			}
-
-			$content .= '.';
-			$content  = apply_filters( 'scrobbble_content', $content, $data );
-
-			// Avoid duplicates, so we don't have to rely on clients for this.
-			if ( self::track_exists( $content, $time ) ) {
-				continue;
-			}
-
-			$args = array(
-				'post_author'   => $user_id,
-				'post_type'     => 'iwcpt_listen',
-				'post_title'    => wp_strip_all_tags( $content ),
-				'post_content'  => $content,
-				'post_status'   => 'publish',
-				'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $time ),
-			);
-
-			// Store the track's MusicBrainz ID.
-			$args['meta_input'] = array_filter(
-				array(
-					'_scrobbble_mbid'   => $mbid,
-					'_scrobbble_client' => ! empty( $session->client ) ? $session->client : '',
-				)
-			);
-
-			$post_id = wp_insert_post( $args );
-
-			// Using custom taxonomies for artist and album information.
-			wp_set_object_terms( $post_id, array( $artist ), 'iwcpt_artist' );
-			wp_set_object_terms( $post_id, array( "$artist - $album" ), 'iwcpt_album' );
-
-			// For add-on plugins (cover art, etc.) to be able to do their
-			// thing.
-			// To do: deprecate in favor of core hooks, e.g.,
-			// `save_post_iwcpt_listen`?
-			do_action( 'scrobbble_save_track', $post_id, $data );
+			static::create_listen( $data, $session, $user_id );
 		}
 
 		die( "OK\n" );
@@ -347,7 +310,7 @@ class Scrobbble_API {
 	 * @param  int    $time    Timestamp.
 	 * @return bool
 	 */
-	public static function track_exists( $content, $time ) {
+	protected static function track_exists( $content, $time ) {
 		$tracks = get_posts(
 			array(
 				'post_type'    => 'iwcpt_listen',
@@ -394,7 +357,7 @@ class Scrobbble_API {
 	 * @param  string $session_id API session ID.
 	 * @return object|null        Session data, or `null` on failure.
 	 */
-	public static function get_session( $session_id ) {
+	protected static function get_session( $session_id ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'scrobbble_sessions';
@@ -410,5 +373,69 @@ class Scrobbble_API {
 		}
 
 		return $session;
+	}
+
+	/**
+	 * Creates a listen post.
+	 *
+	 * @param  array  $data    Track data.
+	 * @param  object $session Current session.
+	 * @return int|string      Post ID, or, on failure, the reason.
+	 */
+	protected static function create_listen( $data, $session ) {
+		$title  = isset( $data['title'] ) ? $data['title'] : '';
+		$artist = isset( $data['artist'] ) ? $data['artist'] : '';
+		$album  = isset( $data['album'] ) ? $data['album'] : '';
+		$mbid   = isset( $data['mbid'] ) ? $data['mbid'] : '';
+		$time   = isset( $data['time'] ) ? $data['time'] : '';
+
+		$content = "Listening to <span class=\"p-listen-of h-cite\"><cite class=\"p-name\">$title</cite> by <span class=\"p-author h-card\"><span class=\"p-name\">$artist</span></span></span>";
+
+		if ( ! empty( $album ) ) {
+			$content .= "<span class=\"screen-reader-text\"> ($album)</span>";
+		}
+
+		$content .= '.';
+		$content  = apply_filters( 'scrobbble_content', $content, $data );
+
+		// Avoid duplicates, so we don't have to rely on clients for this.
+		if ( static::track_exists( $content, $time ) ) {
+			return 'duplicate';
+		}
+
+		$args = array(
+			'post_author'   => $session->user_id,
+			'post_type'     => 'iwcpt_listen',
+			'post_title'    => wp_strip_all_tags( $content ),
+			'post_content'  => $content,
+			'post_status'   => 'publish',
+			'post_date_gmt' => gmdate( 'Y-m-d H:i:s', $time ),
+		);
+
+		// Store the track's MusicBrainz ID.
+		$args['meta_input'] = array_filter(
+			array(
+				'_scrobbble_mbid'   => $mbid,
+				'_scrobbble_client' => ! empty( $session->client ) ? $session->client : '',
+			)
+		);
+
+		$post_id = wp_insert_post( $args );
+
+		// Using custom taxonomies for artist and album information.
+		wp_set_object_terms( $post_id, array( $artist ), 'iwcpt_artist' );
+		wp_set_object_terms( $post_id, array( "$artist - $album" ), 'iwcpt_album' );
+
+		// For add-on plugins (cover art, etc.) to be able to do their
+		// thing.
+		// To do: deprecate in favor of core hooks, e.g.,
+		// `save_post_iwcpt_listen`?
+		do_action( 'scrobbble_save_track', $post_id, $data );
+
+		if ( ! empty( $post ) && ! is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+
+		return 'failed';
 	}
 }
