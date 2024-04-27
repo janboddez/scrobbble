@@ -104,20 +104,9 @@ class Scrobbble_API_2 extends Scrobbble_API {
 			);
 		}
 
-		$user = get_user_by( 'login', $username );
-		if ( empty( $user->ID ) ) {
-			error_log( '[Scrobbble/API 2.0] Invalid username.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			return new \WP_REST_Response(
-				array(
-					'error'   => 3,
-					'message' => 'Invalid authentication token supplied',
-				)
-			);
-		}
-
-		// @todo: Allow site-wide "password."
-		if ( ! defined( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) || constant( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) !== $password ) {
-			error_log( '[Scrobbble/API 2.0] Invalid password.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		$user = static::auth( $username, $password );
+		if ( ! $user instanceof \WP_User ) {
+			// Invalid username or password.
 			return new \WP_REST_Response(
 				array(
 					'error'   => 3,
@@ -427,5 +416,33 @@ class Scrobbble_API_2 extends Scrobbble_API {
 				'profile_created' => gmdate( '%c', $user->user_registered ),
 			),
 		);
+	}
+
+	/**
+	 * Returns user information.
+	 *
+	 * @param  string $username User login.
+	 * @param  string $password Submitted password.
+	 * @return \WP_User|false   The authenticated user, or `false` on failure.
+	 */
+	protected static function auth( $username, $password ) {
+		$user = get_user_by( 'login', $username );
+		if ( empty( $user->ID ) ) {
+			error_log( '[Scrobbble/API 2.0] Invalid username.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			return false;
+		}
+
+		if ( defined( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) && constant( 'SCROBBBLE_PASS_' . strtoupper( $user->user_login ) ) === $password ) {
+			// Password specifically for this user.
+			return $user;
+		}
+
+		if ( defined( 'SCROBBBLE_PASS' ) && SCROBBBLE_PASS === $password ) {
+			// Legacy site-wide password.
+			return $user;
+		}
+
+		error_log( '[Scrobbble/API 2.0] Invalid password.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return false;
 	}
 }

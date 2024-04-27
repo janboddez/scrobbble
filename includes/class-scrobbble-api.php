@@ -287,7 +287,7 @@ class Scrobbble_API {
 	 * @param  string   $token     Auth token.
 	 * @param  string   $timestamp Timestamp.
 	 * @param  \WP_User $user      User.
-	 * @return bool
+	 * @return bool                Whether the token is valid.
 	 */
 	protected static function check_standard_auth( $token, $timestamp, $user = null ) {
 		// Allow per-user passwords. We might eventually choose to store these
