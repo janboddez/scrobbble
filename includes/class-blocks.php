@@ -46,9 +46,9 @@ class Blocks {
 	 * @param  \WP_Block $block      Block instance.
 	 * @return string                Output HTML.
 	 */
-	public static function render_now_playing_block( $attributes, $content, $block ) {
-		wp_enqueue_style( 'scrobbble-now-playing', plugins_url( '/assets/now-playing.css', dirname( __FILE__ ) ), array(), Scrobbble::PLUGIN_VERSION );
-		wp_enqueue_script( 'scrobbble-now-playing-js', plugins_url( '/assets/now-playing.js', dirname( __FILE__ ) ), array( 'wp-api-fetch', 'wp-i18n' ), Scrobbble::PLUGIN_VERSION, true );
+	public static function render_now_playing_block( $attributes, $content, $block ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		wp_enqueue_style( 'scrobbble-now-playing', plugins_url( '/assets/now-playing.css', __DIR__ ), array(), Scrobbble::PLUGIN_VERSION );
+		wp_enqueue_script( 'scrobbble-now-playing-js', plugins_url( '/assets/now-playing.js', __DIR__ ), array( 'wp-api-fetch', 'wp-i18n' ), Scrobbble::PLUGIN_VERSION, true );
 
 		$title = ! empty( $attributes['title'] ) ? $attributes['title'] : __( 'Now Playing', 'scrobbble' );
 		$url   = ! empty( $attributes['url'] ) ? $attributes['url'] : '';

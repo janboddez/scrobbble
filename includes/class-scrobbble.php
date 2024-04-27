@@ -38,13 +38,46 @@ class Scrobbble {
 	 * Registers hook callbacks.
 	 */
 	public function register() {
+		// On activation, flush permalinks and run database migration.
 		register_activation_hook( dirname( __DIR__ ) . '/scrobbble.php', array( $this, 'activate' ) );
 
+		// Register our CPT, and the Now Playing block.
 		add_action( 'init', array( 'Scrobbble\\Blocks', 'register_blocks' ) );
 		add_action( 'init', array( 'Scrobbble\\Scrobbble_CPT', 'register' ), 1 ); // Early, because otherwise the custom taxonomy block won't show.
-		add_action( 'rest_api_init', array( 'Scrobbble\\Scrobbble_API', 'register_api_routes' ) );
 
+		// Register API routes.
+		add_action( 'rest_api_init', array( 'Scrobbble\\Scrobbble_API', 'register_routes' ) );
+		add_action( 'rest_api_init', array( 'Scrobbble\\Scrobbble_API_2', 'register_routes' ) );
+
+		// Autogenerate "listen" slugs.
 		add_filter( 'wp_insert_post_data', array( $this, 'set_slug' ), 10, 2 );
+	}
+
+	/**
+	 * Runs when the plugin is activated.
+	 */
+	public function activate() {
+		// Register post types, then flush rewrite rules.
+		Scrobbble_CPT::register();
+		flush_rewrite_rules();
+
+		global $wpdb;
+
+		$table_name      = $wpdb->prefix . 'scrobbble_sessions';
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Create database table (if it doesn't exist, yet).
+		$sql = "CREATE TABLE $table_name (
+			session_id varchar(32) DEFAULT '' NOT NULL,
+			expires bigint(20) UNSIGNED DEFAULT 0 NOT NULL,
+			client varchar(161) DEFAULT '' NOT NULL,
+			user_id bigint(20) UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (session_id)
+		) $charset_collate; ";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		dbDelta( $sql );
 	}
 
 	/**
@@ -77,32 +110,5 @@ class Scrobbble {
 		$data['post_name'] = $slug;
 
 		return $data;
-	}
-
-	/**
-	 * Runs when the plugin is activated.
-	 */
-	public function activate() {
-		// Register post types, then flush rewrite rules.
-		Scrobbble_CPT::register();
-		flush_rewrite_rules();
-
-		global $wpdb;
-
-		$table_name      = $wpdb->prefix . 'scrobbble_sessions';
-		$charset_collate = $wpdb->get_charset_collate();
-
-		// Create database table (if it doesn't exist, yet).
-		$sql = "CREATE TABLE $table_name (
-			session_id varchar(32) DEFAULT '' NOT NULL,
-			expires bigint(20) UNSIGNED DEFAULT 0 NOT NULL,
-			client varchar(161) DEFAULT '' NOT NULL,
-			user_id bigint(20) UNSIGNED DEFAULT 0 NOT NULL,
-			PRIMARY KEY (session_id)
-		) $charset_collate; ";
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		dbDelta( $sql );
 	}
 }
