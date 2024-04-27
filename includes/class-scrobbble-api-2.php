@@ -14,33 +14,9 @@ namespace Scrobbble;
  */
 class Scrobbble_API_2 extends Scrobbble_API {
 	/**
-	 * Resolves method parameters to handler functions.
-	 *
-	 * @var array METHOD_MAP Method names.
-	 */
-	const METHOD_MAP = array(
-		'auth.getmobilesession'  => 'auth_getmobilesession',
-		'user.getinfo'           => 'user_getinfo',
-		'track.scrobble'         => 'track_scrobble',
-		'track.updatenowplaying' => 'track_now',
-	);
-
-	/**
 	 * Registers API routes.
 	 */
 	public static function register_routes() {
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found,Universal.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed,Squiz.Commenting.InlineComment.SpacingBefore,Squiz.Commenting.InlineComment.InvalidEndChar
-		// register_rest_route(
-		// 	'scrobbble/v1',
-		// 	'/scrobbble/api/auth',
-		// 	array(
-		// 		'methods'             => array( 'GET' ),
-		// 		'callback'            => array( __CLASS__, 'auth' ),
-		// 		'permission_callback' => '__return_true',
-		// 	)
-		// );
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found,Universal.WhiteSpace.DisallowInlineTabs.NonIndentTabsUsed,Squiz.Commenting.InlineComment.SpacingBefore,Squiz.Commenting.InlineComment.InvalidEndChar
-
 		register_rest_route(
 			'scrobbble/v1',
 			'/scrobbble/2.0',
