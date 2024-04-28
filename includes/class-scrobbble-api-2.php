@@ -388,8 +388,16 @@ class Scrobbble_API_2 extends Scrobbble_API {
 						'#text' => esc_url_raw( get_avatar_url( $user, array( 'size' => 64 ) ) ),
 						'size'  => 'medium',
 					),
+					array(
+						'#text' => esc_url_raw( get_avatar_url( $user, array( 'size' => 126 ) ) ),
+						'size'  => 'large',
+					),
+					array(
+						'#text' => esc_url_raw( get_avatar_url( $user, array( 'size' => 252 ) ) ),
+						'size'  => 'extralarge',
+					),
 				),
-				'profile_created' => gmdate( 'Y-m-d H:i:s', strtotime( $user->user_registered ) ),
+				'profile_created' => get_gmt_from_date( $user->user_registered ),
 				'url'             => get_the_author_meta( 'url' ) ?: get_author_posts_url( $user->ID ), // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 			),
 		);
