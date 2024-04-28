@@ -375,10 +375,10 @@ class Scrobbble_API_2 extends Scrobbble_API {
 			);
 		}
 
-		return array(
+		$response = array(
 			'user' => array(
-				'name'            => esc_html( $user->user_login ),
-				'realname'        => esc_html( trim( get_user_meta( $user->ID, 'first_name', true ) . ' ' . get_user_meta( $user->ID, 'last_name', true ) ) ),
+				'name'            => $user->user_login,
+				'realname'        => trim( get_user_meta( $user->ID, 'first_name', true ) . ' ' . get_user_meta( $user->ID, 'last_name', true ) ),
 				'image'           => array(
 					array(
 						'#text' => esc_url_raw( get_avatar_url( $user, array( 'size' => 32 ) ) ),
@@ -389,9 +389,14 @@ class Scrobbble_API_2 extends Scrobbble_API {
 						'size'  => 'medium',
 					),
 				),
-				'profile_created' => gmdate( '%c', $user->user_registered ),
+				'profile_created' => gmdate( 'Y-m-d H:i:s', strtotime( $user->user_registered ) ),
+				'url'             => get_the_author_meta( 'url' ) ?: get_author_posts_url( $user->ID ), // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 			),
 		);
+
+		// error_log( var_export( $response, true ) );
+
+		return $response;
 	}
 
 	/**
