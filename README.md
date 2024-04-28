@@ -67,6 +67,8 @@ You'll want to enable scrobbling to "GNU FM" (GNU FM being the software behind L
 
 For "API URL," enter, e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble/2.0`. Sign in with your WordPress login and the unique password you set in `wp-config.php`—see below.
 
+You won't see things like recent tracks or top artists—you're more likely to see a bunch of "Invalid Method" popups, haha—but scrobbling and "now playing" should work fine.
+
 ## Do I Need a Last.fm or Libre.fm Account?
 No. This plugin fully replaces those services.
 
