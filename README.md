@@ -6,7 +6,7 @@ This plugin _partially_ implements Last.fm's API, allowing media players to subm
 Supported clients:
 - mpdscribble (Linux): uses the v1.2 API to submit "scrobbles" as well as "now playing" tracks.
 - foobar2000 (Windows): can be set up to use the v1.2 API to submit "scrobbles" as well as "now playing" tracks.
-- PanoScrobbler (Android): uses the v2.0 API to submit "scrobbles" as well as "now playing" tracks; other methods are currently not implemented.
+- Pano Scrobbler (Android): uses the v2.0 API to submit "scrobbles" as well as "now playing" tracks; other methods are currently not implemented.
 
 It registers a new "listen" custom post type, a "Now Playing" block, and a number of filter (and action) hooks.
 
@@ -62,7 +62,7 @@ Install [mpdscribble](https://www.musicpd.org/clients/mpdscribble/), and in `/et
 
 Then, add your credentials to File > Preferences > Tools > Audioscrobbler.
 
-## I use PanoScrobbler, How Do I Get This to Work?
+## I use Pano Scrobbler, How Do I Get This to Work?
 You'll want to enable scrobbling to "GNU FM" (GNU FM being the software behind Libre.fm).
 
 For "API URL," enter, e.g., `https://www.example.org/wp-json/scrobbble/v1/scrobbble/2.0`. Sign in with your WordPress login and the unique password you set in `wp-config.php`—see below.
