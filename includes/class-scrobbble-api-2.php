@@ -101,7 +101,7 @@ class Scrobbble_API_2 extends Scrobbble_API {
 				'user_id'    => $user->ID,
 				'session_id' => $session_id,
 				'client'     => sanitize_text_field( $request->get_param( 'api_key' ) ?: '' ), // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
-				'expires'    => time() + MONTH_IN_SECONDS,
+				'expires'    => time() + YEAR_IN_SECONDS,
 			)
 		);
 
